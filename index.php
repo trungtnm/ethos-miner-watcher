@@ -24,7 +24,12 @@ function alert() {
     $message .= sprintf("\r\nTemps:  %s", $info['rigs'][$CONFIG['rig_name']]['temp']);
 
     echo $message;
-    file_get_contents("https://api.telegram.org/bot{$CONFIG['bot_token']}/sendMessage?chat_id={$CONFIG['chat_id']}&parse_mode=HTML&text=" . urlencode($message));
+    $url = "https://api.telegram.org/bot{$CONFIG['bot_token']}/sendMessage?chat_id={$CONFIG['chat_id']}&parse_mode=HTML&text=" . urlencode($message);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_exec($ch);
 }
 
 
