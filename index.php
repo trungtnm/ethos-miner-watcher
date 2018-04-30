@@ -23,6 +23,7 @@ function alert() {
     $message .= sprintf("\r\nHash rates:  %s", $info['rigs'][$CONFIG['rig_name']]['miner_hashes']);
     $message .= sprintf("\r\nTemps:  %s", $info['rigs'][$CONFIG['rig_name']]['temp']);
 
+    echo $message;
     file_get_contents("https://api.telegram.org/bot{$CONFIG['bot_token']}/sendMessage?chat_id={$CONFIG['chat_id']}&parse_mode=HTML&text=" . urlencode($message));
 }
 
