@@ -1,27 +1,29 @@
 <?php
 include "./config.php";
-
-$info = json_decode(file_get_contents($CONFIG['rig_panel_url']), 1);
-if (json_last_error() != JSON_ERROR_NONE) {
-    return alert();
+while (1) {
+    $info = json_decode(file_get_contents($CONFIG['rig_panel_url']), 1);
+    if (
+        json_last_error() != JSON_ERROR_NONE
+        || $info['alive_gpus'] < $CONFIG['number_of_gpus']
+        || $info['total_hash'] < $CONFIG['minimum_hashrate']
+        || isExceedTemp($info)
+    ) {
+        alert();
+    } else {
+        echo "The rig is working normally.\r\n";
+    }
+    sleep(300);
 }
 
-if (
-    $info['alive_gpus'] < $CONFIG['number_of_gpus']
-    || $info['total_hash'] < $CONFIG['minimum_hashrate']
-    || isExceedTemp($info)
-) {
-    return alert();
-}
-echo "Nothing happen";
 
 function alert() {
     global $CONFIG, $info;
 
-    $message = "<b>Your rig {$CONFIG['rig_name']} has issue</b>";
-    $message .= "\r\nGPUs: <b>{$info['alive_gpus']}</b>/{$info['total_gpus']}";
+    $message = "Your rig {$CONFIG['rig_name']} has issue";
+    $message .= "\r\nGPUs: {$info['alive_gpus']}/{$info['total_gpus']}";
     $message .= sprintf("\r\nHash rates:  %s", $info['rigs'][$CONFIG['rig_name']]['miner_hashes']);
     $message .= sprintf("\r\nTemps:  %s", $info['rigs'][$CONFIG['rig_name']]['temp']);
+    $message .= "\r";
 
     echo $message;
     $url = "https://api.telegram.org/bot{$CONFIG['bot_token']}/sendMessage?chat_id={$CONFIG['chat_id']}&parse_mode=HTML&text=" . urlencode($message);
